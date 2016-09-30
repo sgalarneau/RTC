@@ -22,7 +22,7 @@ Voyage::Voyage(const std::vector<std::string>& ligne_gtfs, Ligne* p_ligne) {
 Arret& Voyage::arretDeLaStation(unsigned int p_num_station) {
 	Arret* arretTrouve;
 
-	for(int i = 0; i < m_arrets.size(); i++){
+	for(unsigned int i = 0; i < m_arrets.size(); i++){
 		if(m_arrets[i].getStationId() == p_num_station) {
 			arretTrouve = &m_arrets[i];
 		}
@@ -68,16 +68,34 @@ void Voyage::setServiceId(std::string p_service_id) {
 }
 
 Heure Voyage::getHeureDepart() const {
+	return m_heureDepart;
 }
 
 Heure Voyage::getHeureFin() const {
+	return m_heureFin;
 }
 
 void Voyage::setArrets(std::vector<Arret>& resultat) {
+	m_arrets.clear();
+	m_arrets.push_back(resultat[0]);
+
+	for (unsigned int i = 0; i < resultat.size(); i++) {
+		Arret depart = resultat[i];
+		Arret arrive = resultat[i+1];
+
+		if (depart.getHeureArrivee() == arrive.getHeureArrivee()) {
+			arrive.setHeureDepart(arrive.getHeureDepart().add_secondes(30));
+			arrive.setHeureArrivee(arrive.getHeureArrivee().add_secondes(30));
+		}
+
+		m_arrets.push_back(arrive);
+	}
 }
 
 bool Voyage::operator <(const Voyage& p_other) const {
+	return p_other.getHeureDepart() < m_heureDepart;
 }
 
 bool Voyage::operator >(const Voyage& p_other) const {
+	return p_other.getHeureDepart() > m_heureDepart;
 }

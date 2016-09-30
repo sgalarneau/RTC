@@ -46,6 +46,8 @@ private:
 	std::string m_service_id;
 	std::string m_destination;
 	std::vector<Arret> m_arrets;
+	Heure m_heureDepart;
+	Heure m_heureFin;
 };
 
 
