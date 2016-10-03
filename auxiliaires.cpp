@@ -8,12 +8,33 @@
 #include <ctime>
 #include "auxiliaires.h"
 
+
 std::vector<std::string> split(const std::string& s, char delim) {
+	std::vector<std::string> resultat;
+	std::stringstream ss;
+	ss.str(s);
+	std::string element;
+
+	while (std::getline(ss, element, delim)) {
+		resultat.push_back(element);
+	}
+
+	return resultat;
 }
 
-void lireFichier(std::string nomFichier,
-		std::vector<std::vector<std::string> >& resultats, char delimiteur,
-		bool rm_entete) {
+void lireFichier(std::string nomFichier, std::vector<std::vector<std::string> >& resultats, char delimiteur, bool rm_entete) {
+	std::ifstream fichier(nomFichier);
+	std::string ligne;
+	std::string ligneUn;
+
+	if (!fichier) throw std::logic_error("L'ouverture du fichier a echoue");
+
+	if (rm_entete) std::getline(fichier, ligneUn);
+
+	while (std::getline(fichier, ligne)) {
+		resultats.push_back(split(ligne, delimiteur));
+		//std::cout << ligne << std::endl;
+	}
 }
 
 Date::Date() {

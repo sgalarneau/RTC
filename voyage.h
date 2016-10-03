@@ -6,6 +6,7 @@
 #define RTC_VOYAGE_H
 
 #include <string>
+#include <algorithm>
 #include "arret.h"
 #include "ligne.h"
 #include "station.h"

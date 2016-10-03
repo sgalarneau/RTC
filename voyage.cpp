@@ -79,6 +79,8 @@ void Voyage::setArrets(std::vector<Arret>& resultat) {
 	m_arrets.clear();
 	m_arrets.push_back(resultat[0]);
 
+	std::sort(resultat.begin(), resultat.end());
+
 	for (unsigned int i = 0; i < resultat.size(); i++) {
 		Arret depart = resultat[i];
 		Arret arrive = resultat[i+1];
