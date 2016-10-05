@@ -8,7 +8,6 @@
 #include <ctime>
 #include "auxiliaires.h"
 
-
 std::vector<std::string> split(const std::string& s, char delim) {
 	std::vector<std::string> resultat;
 	std::stringstream ss;
@@ -27,7 +26,7 @@ void lireFichier(std::string nomFichier, std::vector<std::vector<std::string> >&
 	std::string ligne;
 	std::string ligneUn;
 
-	if (!fichier) throw std::logic_error("L'ouverture du fichier a echoue");
+	if (!fichier) throw std::logic_error("L'ouverture du fichier : " + nomFichier + " a echoue");
 
 	if (rm_entete) std::getline(fichier, ligneUn);
 
