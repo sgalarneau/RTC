@@ -67,3 +67,10 @@ bool Arret::operator <(const Arret& p_other) const {
 bool Arret::operator >(const Arret& p_other) const {
 	return this->m_numero_sequence > p_other.getNumeroSequence();
 }
+
+std::ostream & operator<<(std::ostream & flux, const Arret & p_arret) {
+	return flux << p_arret.m_heure_arrivee << " - " << p_arret.m_station_id;
+}
+
+
+

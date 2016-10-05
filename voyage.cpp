@@ -10,7 +10,7 @@
 
 Voyage::Voyage(const std::vector<std::string>& ligne_gtfs, Ligne* p_ligne) {
 
-	m_id = stoul(ligne_gtfs[2]);
+	m_id = ligne_gtfs[2];
 	m_service_id = stoul(ligne_gtfs[1]);
 	m_destination = ligne_gtfs[3];
 
@@ -77,20 +77,23 @@ Heure Voyage::getHeureFin() const {
 
 void Voyage::setArrets(std::vector<Arret>& resultat) {
 	m_arrets.clear();
-	m_arrets.push_back(resultat[0]);
 
-	std::sort(resultat.begin(), resultat.end());
+	if(resultat.size() > 0){
+		m_arrets.push_back(resultat[0]);
 
-	for (unsigned int i = 0; i < resultat.size(); i++) {
-		Arret depart = resultat[i];
-		Arret arrive = resultat[i+1];
+		std::sort(resultat.begin(), resultat.end());
 
-		if (depart.getHeureArrivee() == arrive.getHeureArrivee()) {
-			arrive.setHeureDepart(arrive.getHeureDepart().add_secondes(30));
-			arrive.setHeureArrivee(arrive.getHeureArrivee().add_secondes(30));
+		for (unsigned int i = 0; i < resultat.size() - 1; i++) {
+			Arret depart = resultat[i];
+			Arret arrive = resultat[i+1];
+
+			if (depart.getHeureArrivee() == arrive.getHeureArrivee()) {
+				arrive.setHeureDepart(arrive.getHeureDepart().add_secondes(30));
+				arrive.setHeureArrivee(arrive.getHeureArrivee().add_secondes(30));
+			}
+
+			m_arrets.push_back(arrive);
 		}
-
-		m_arrets.push_back(arrive);
 	}
 }
 
@@ -100,4 +103,14 @@ bool Voyage::operator <(const Voyage& p_other) const {
 
 bool Voyage::operator >(const Voyage& p_other) const {
 	return p_other.getHeureDepart() > m_heureDepart;
+}
+
+std::ostream & operator<<(std::ostream & flux, const Voyage & p_voyage) {
+	flux << p_voyage.m_id << ": " << p_voyage.m_destination << std::endl;
+
+	for (int i = 0; i < p_voyage.m_arrets.size(); i++) {
+		flux << p_voyage.m_arrets[i] << std::endl;
+	}
+
+	return flux;
 }

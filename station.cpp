@@ -74,3 +74,7 @@ void Station::addVoyage(Voyage* ptr_voyage) {
 double Station::distance(const Station& p_station) const {
 	return this->getCoords() - p_station.getCoords();
 }
+
+std::ostream& operator<<(std::ostream& flux, const Station& p_station) {
+	return flux << p_station.m_id << " - " << p_station.m_nom;
+}

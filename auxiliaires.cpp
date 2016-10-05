@@ -146,3 +146,33 @@ int Heure::operator -(const Heure& other) const {
 
 	return nbSec - nbSecOther;
 }
+
+
+std::ostream & operator<<(std::ostream & flux, const Heure & p_heure) {
+	if (p_heure.m_heure < 10){
+		flux << "0" << p_heure.m_heure;
+	} else {
+		flux << p_heure.m_heure;
+	}
+
+	flux << ":";
+
+	if (p_heure.m_min < 10){
+		flux << "0" << p_heure.m_min;
+	} else {
+		flux << p_heure.m_min;
+	}
+
+	flux << ":";
+
+	if (p_heure.m_sec < 10){
+		flux << "0" << p_heure.m_sec;
+	} else {
+		flux << p_heure.m_sec;
+	}
+
+	return flux;
+}
+
+
+

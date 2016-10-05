@@ -7,6 +7,8 @@
 
 #include <iostream>
 #include <algorithm>
+#include <map>
+#include <ctime>
 
 #include "auxiliaires.h"
 #include "ligne.h"
@@ -27,29 +29,37 @@ int main() {
 	vector<vector<string>> fichier_arrets;
 
 	vector<Ligne*> lignes;
-	vector<Station> stations;
-	vector<Arret> arrets;
-	vector<Voyage> voyages;
+	vector<Station*> stations;
+	vector<Arret*> arrets;
+	vector<Voyage*> voyages;
+
+	map<string, std::vector<Arret>> arretsVoyages;
+
+	int timer_start = clock();
 
 	lireFichier("RTC/trips.txt", fichier_voyages, delimiteur, true);
 	lireFichier("RTC/stops.txt", fichier_stations, delimiteur, true);
 	lireFichier("RTC/routes.txt", fichier_lignes, delimiteur, true);
 	lireFichier("RTC/stop_times.txt", fichier_arrets, delimiteur, true);
 
-	int timer_start = clock();
-
 	for(unsigned int i = 0; i < fichier_lignes.size(); i++) {
-		Ligne uneLigne = Ligne(fichier_lignes[i]);
-		lignes.push_back(&uneLigne);
+		Ligne* uneLigne = new Ligne(fichier_lignes[i]);
+		lignes.push_back(uneLigne);
 	}
 
 	for(unsigned int i = 0; i < fichier_stations.size(); i++) {
-		Station uneStation = Station(fichier_stations[i]);
+		Station* uneStation = new Station(fichier_stations[i]);
 		stations.push_back(uneStation);
 	}
 
+
+
 	for(unsigned int i = 0; i < fichier_arrets.size(); i++) {
-		Arret unArret = Arret(fichier_arrets[i]);
+		Arret* unArret = new Arret(fichier_arrets[i]);
+		unArret->setVoyageId(fichier_arrets[i][0]);
+
+		arretsVoyages[unArret->getVoyageId()].push_back(*unArret);
+
 		arrets.push_back(unArret);
 	}
 
@@ -63,49 +73,70 @@ int main() {
 			}
 		}
 
-		Voyage unVoyage = Voyage(fichier_voyages[i], laLigne);
+		Voyage* unVoyage = new Voyage(fichier_voyages[i], laLigne);
+
+		unVoyage->setArrets(arretsVoyages[unVoyage->getId()]);
+
 		voyages.push_back(unVoyage);
 	}
 
 	int timer_stop = clock();
 
-	cout << "Chargement des données terminé en " <<  (timer_stop - timer_start) / double(CLOCKS_PER_SEC) << " secondes" << endl;
-	cout << "======================" << endl;
-	cout << "LIGNES DE LA RTC" << endl;
-	cout << "COMPTE = " << lignes.size() << endl;
-	cout << "======================" << endl;
+
+	std::ofstream fout("resume_rtc.txt");
+
+	fout << "Chargement des données terminé en " <<  (timer_stop - timer_start) / double(CLOCKS_PER_SEC) << " secondes" << endl;
+	fout << "======================" << endl;
+	fout << "LIGNES DE LA RTC" << endl;
+	fout << "COMPTE = " << lignes.size() << endl;
+	fout << "======================" << endl;
 
 	for (int i = 0; i < lignes.size(); i++) {
-		string categorie = lignes[i]->categorieToString(lignes[i]->getCategorie());
-		string numero = lignes[i]->getNumero();
-		string desc = lignes[i]->getDescription();
-
-		cout << categorie << " " << numero << " : " <<  desc << endl;
+		fout << *lignes[i] << endl;
 	}
 
-	cout << "======================" << endl;
-	cout << "STATIONS DE LA RTC" << endl;
-	cout << "COMPTE = " << stations.size() << endl;
-	cout << "======================" << endl;
+	fout << "======================" << endl;
+	fout << "STATIONS DE LA RTC" << endl;
+	fout << "COMPTE = " << stations.size() << endl;
+	fout << "======================" << endl;
+
+	for (int i = 0; i < stations.size(); i++) {
+		fout << *stations[i] << endl;
+	}
 
 	time_t t = time(0);
 	struct tm * now = localtime( & t );
 
-	cout << "======================" << endl;
-	cout << "VOYAGES DE LA JOURNÉE DU " << (now->tm_year + 1900) << '-' << (now->tm_mon + 1) << '-' <<  now->tm_mday << endl;
-	cout << ctime (&t) << endl; //TODO: Afficher heure comme du monde
-	cout << "COMPTE = " << voyages.size() << endl;
-	cout << "======================" << endl;
+	fout << "======================" << endl;
+	fout << "VOYAGES DE LA JOURNÉE DU " << (now->tm_year + 1900) << '-' << (now->tm_mon + 1) << '-' <<  now->tm_mday << endl;
+	fout << ctime (&t) << endl; //TODO: Afficher heure comme du monde
+	fout << "COMPTE = " << voyages.size() << endl;
+	fout << "======================" << endl;
 
 	for (int i = 0; i < voyages.size(); i++) {
-		cout << voyages[i].getId() << ": " << voyages[i].getDestination() << endl;
-
-		for (int j = 0; j < voyages[i].getArrets().size(); j++) {
-			vector<Arret> arrets = voyages[i].getArrets();
-
-			//cout << arrets[j].getHeureArrivee() << " - " << arrets[j].getStationId() << endl; //TODO: A Fixer
-		}
+		fout << *voyages[i] << endl;
 	}
+
+
+	for (std::vector<Ligne*>::iterator it = lignes.begin() ; it != lignes.end(); ++it) {
+		delete (*it);
+    }
+	lignes.clear();
+
+	for (std::vector<Station*>::iterator it = stations.begin() ; it != stations.end(); ++it) {
+		delete (*it);
+    }
+	stations.clear();
+
+	for (std::vector<Voyage*>::iterator it = voyages.begin() ; it != voyages.end(); ++it) {
+		delete (*it);
+    }
+	voyages.clear();
+
+	for (std::vector<Arret*>::iterator it = arrets.begin() ; it != arrets.end(); ++it) {
+		delete (*it);
+    }
+	arrets.clear();
 
 	return 0;
 }
